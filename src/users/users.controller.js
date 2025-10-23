@@ -22,7 +22,7 @@ router.post('/:user', (req, res) => {
 });
 
 // Ruta: PATCH /users
-router.patch('/:id', (req, res) => {
+router.put('/:id', (req, res) => {
   const response = usersService.updateOneUser(req.params.id);
   res.send(response);
 });
