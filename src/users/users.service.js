@@ -18,8 +18,8 @@ const createNewUser = (user) => {
   return response;
 };
 
-const updateOneUser = (id) => {
-  const response = userRepository.updateOneUser(id);
+const updateOneUser = (id, userData) => {
+  const response = userRepository.updateOneUser(id, userData);
 
   return response;
 };
@@ -30,4 +30,16 @@ const deleteOneUser = (id) => {
   return response;
 };
 
-export { getAllUsers, getOneUser, createNewUser, updateOneUser, deleteOneUser };
+const updatePokemonIds = (id, pokemonIds) => {
+  const response = userRepository.updatePokemonIds(id, pokemonIds);
+  return response;
+};
+
+export {
+  getAllUsers,
+  getOneUser,
+  createNewUser,
+  updateOneUser,
+  deleteOneUser,
+  updatePokemonIds,
+};
