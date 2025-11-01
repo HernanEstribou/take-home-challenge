@@ -34,6 +34,15 @@ router.post('/', (req, res) => {
     pokemonIds: createUserDto.pokemonIds || [],
   };
 
+  const validation = createUserDto.validate();
+
+  if (!validation.valid) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: validation.errors,
+    });
+  }
+
   const response = usersService.createNewUser(userData);
 
   res.status(201).json(response);
@@ -42,6 +51,15 @@ router.post('/', (req, res) => {
 // Ruta: PUT /users
 router.put('/:id', (req, res) => {
   const updateUserDto = new UpdateUserDto(req.body);
+
+  const validation = updateUserDto.validate();
+
+  if (!validation.valid) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: validation.errors,
+    });
+  }
   const response = usersService.updateOneUser(req.params.id, updateUserDto);
   res.send(response);
 });
@@ -55,6 +73,15 @@ router.delete('/:id', (req, res) => {
 router.put('/:id/pokemon', (req, res) => {
   const userId = req.params.id;
   const updatePokemonDto = new UpdatePokemonIdsDto(req.body);
+
+  const validation = updatePokemonDto.validate();
+
+  if (!validation.valid) {
+    return res.status(400).json({
+      message: 'Validation failed',
+      errors: validation.errors,
+    });
+  }
 
   const updateUser = usersService.UpdatePokemonIds(
     userId,
