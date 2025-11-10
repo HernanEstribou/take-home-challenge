@@ -1,0 +1,299 @@
+openapi: 3.0.0
+info:
+  title: Users API
+  version: 1.0.0
+  description: API for managing users and their Pokemon collections
+  contact:
+    name: Hernán Estribou
+
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+
+tags:
+  - name: Users
+    description: The Users managing API
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of User
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        password:
+          type: string
+          minLength: 6
+          description: The password of the user (min 6 characters)
+        pokemonIds:
+          type: array
+          items:
+            type: integer
+          description: List of Pokemon IDs
+      example:
+        username: Hernan
+        email: hernan@gmail.com
+        password: password123
+        pokemonIds: [1, 4, 7]
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of User
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+      example:
+        id: 1
+        username: Hernan
+        email: hernan@gmail.com
+
+    UserWithPokemon:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of User
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        pokemonIds:
+          type: array
+          items:
+            type: integer
+          description: List of Pokemon IDs owned by the user
+      example:
+        id: 1234
+        username: Hernan
+        email: hernan@gmail.com
+        pokemonIds: [2, 5, 7]
+
+    UpdateUser:
+      type: object
+      properties:
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        password:
+          type: string
+          minLength: 6
+          description: The password of the user (min 6 characters)
+        pokemonIds:
+          type: array
+          items:
+            type: integer
+          description: List of Pokemon IDs
+      example:
+        username: UpdatedName
+        email: updated@gmail.com
+
+    UpdatePokemonIds:
+      type: object
+      required:
+        - pokemonIds
+      properties:
+        pokemonIds:
+          type: array
+          items:
+            type: integer
+          description: List of Pokemon IDs to update
+      example:
+        pokemonIds: [10, 25, 150]
+
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        errors:
+          type: array
+          items:
+            type: string
+      example:
+        message: Validation failed
+        errors: ['username is required and must be a string']
+
+paths:
+  /users:
+    get:
+      summary: Returns the list of all users
+      tags:
+        - Users
+      responses:
+        '200':
+          description: The list of users (without passwords)
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: User was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+
+  /users/{id}:
+    get:
+      summary: Get a user by id with their Pokemon IDs
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User id
+      responses:
+        '200':
+          description: The user with Pokemon IDs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithPokemon'
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user by id
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: The user id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUser'
+      responses:
+        '200':
+          description: The user was updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+
+    delete:
+      summary: Remove a user by id
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User id
+      responses:
+        '200':
+          description: User was deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                example:
+                  message: 'Usuario: 1234 eliminado correctamente'
+        '404':
+          description: User not found
+
+  /users/{id}/pokemon:
+    put:
+      summary: Update Pokemon IDs for a user
+      tags:
+        - Users
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+          description: User id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePokemonIds'
+      responses:
+        '200':
+          description: Pokemon IDs updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserWithPokemon'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: User not found

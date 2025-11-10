@@ -17,7 +17,7 @@ router.get('/', (req, res) => {
   res.send(usersDto);
 });
 
-// Ruta: GET /users
+// Ruta: GET /users/:id
 router.get('/:id', (req, res) => {
   const response = usersService.getOneUser(req.params.id);
 
@@ -48,7 +48,7 @@ router.post('/', (req, res) => {
   res.status(201).json(response);
 });
 
-// Ruta: PUT /users
+// Ruta: PUT /users/:id
 router.put('/:id', (req, res) => {
   const updateUserDto = new UpdateUserDto(req.body);
 
@@ -64,12 +64,13 @@ router.put('/:id', (req, res) => {
   res.send(response);
 });
 
-//Ruta: DELETE /users
+// Ruta: DELETE /users/:id
 router.delete('/:id', (req, res) => {
   const response = usersService.deleteOneUser(req.params.id);
   res.send(response);
 });
 
+// Ruta: PUT /users/:id/pokemon
 router.put('/:id/pokemon', (req, res) => {
   const userId = req.params.id;
   const updatePokemonDto = new UpdatePokemonIdsDto(req.body);
