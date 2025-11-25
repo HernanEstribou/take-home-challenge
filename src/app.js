@@ -4,7 +4,7 @@ import usersRouter from './users/users.controller.js';
 import specs from './swagger/swagger.js';
 
 const app = express();
-const port = 3000;
+const port = 5173;
 
 app.use(express.json());
 
@@ -12,5 +12,5 @@ app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(specs));
 app.use('/users', usersRouter);
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+  console.log(`App listening on port ${port}`);
 });
