@@ -1,3 +1,5 @@
 node_modules
 .vscode
 README.Docker.md
+/src/generated/prisma
+.env
