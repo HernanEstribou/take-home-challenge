@@ -7,7 +7,7 @@ info:
     name: Hernán Estribou
 
 servers:
-  - url: http://localhost:3000
+  - url: http://localhost:5173
     description: Local development server
 
 tags:

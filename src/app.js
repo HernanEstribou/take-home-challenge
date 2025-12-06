@@ -4,7 +4,7 @@ import usersRouter from './users/users.controller.js';
 import specs from './swagger/swagger.js';
 
 const app = express();
-const port = 5173;
+const port = process.env.PORT || 5173;
 
 app.use(express.json());
 
