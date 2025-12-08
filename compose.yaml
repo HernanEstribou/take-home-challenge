@@ -5,6 +5,10 @@ services:
     environment:
       NODE_ENV: production
       PORT: 5173
+      DATABASE_URL: file:./dev.db
     ports:
       - 5173:5173
+    volumes:
+      - ./dev.db:/app/dev.db
+      - ./prisma:/app/prisma
 

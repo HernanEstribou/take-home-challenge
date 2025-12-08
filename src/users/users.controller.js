@@ -9,17 +9,21 @@ import { UserWithPokemonDto } from './dto/user-with-pokemon.dto.js';
 const router = express.Router();
 
 // Ruta: GET /users
-router.get('/', (req, res) => {
-  const users = usersService.getAllUsers();
-
-  const usersDto = users.map((user) => new UserResponseDto(user));
-
-  res.send(usersDto);
+router.get('/', async (req, res) => {
+  try {
+    const users = await usersService.getAllUsers();
+    const usersDto = users.map((user) => new UserResponseDto(user));
+    res.send(usersDto);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error fetching users', error: error.message });
+  }
 });
 
 // Ruta: GET /users/:id
-router.get('/:id', (req, res) => {
-  const response = usersService.getOneUser(req.params.id);
+router.get('/:id', async (req, res) => {
+  const response = await usersService.getOneUser(req.params.id);
 
   const userDto = new UserWithPokemonDto(response);
   res.send(userDto);
@@ -71,7 +75,7 @@ router.delete('/:id', (req, res) => {
 });
 
 // Ruta: PUT /users/:id/pokemon
-router.put('/:id/pokemon', (req, res) => {
+router.put('/:id/pokemon', async (req, res) => {
   const userId = req.params.id;
   const updatePokemonDto = new UpdatePokemonIdsDto(req.body);
 
@@ -84,7 +88,7 @@ router.put('/:id/pokemon', (req, res) => {
     });
   }
 
-  const updateUser = usersService.UpdatePokemonIds(
+  const updateUser = await usersService.updatePokemonIds(
     userId,
     updatePokemonDto.pokemonIds,
   );

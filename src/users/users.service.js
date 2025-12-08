@@ -1,37 +1,36 @@
 import * as userRepository from './users.repository.js';
 
-const getAllUsers = () => {
-  const response = userRepository.getAllUsers();
+const getAllUsers = async () => {
+  const response = await userRepository.getAllUsers();
+  return response;
+};
+
+const getOneUser = async (id) => {
+  const response = await userRepository.getOneUser(id);
 
   return response;
 };
 
-const getOneUser = (id) => {
-  const response = userRepository.getOneUser(id);
+const createNewUser = async (user) => {
+  const response = await userRepository.createNewUser(user);
 
   return response;
 };
 
-const createNewUser = (user) => {
-  const response = userRepository.createNewUser(user);
+const updateOneUser = async (id, userData) => {
+  const response = await userRepository.updateOneUser(id, userData);
 
   return response;
 };
 
-const updateOneUser = (id, userData) => {
-  const response = userRepository.updateOneUser(id, userData);
+const deleteOneUser = async (id) => {
+  const response = await userRepository.deleteOneUser(id);
 
   return response;
 };
 
-const deleteOneUser = (id) => {
-  const response = userRepository.deleteOneUser(id);
-
-  return response;
-};
-
-const updatePokemonIds = (id, pokemonIds) => {
-  const response = userRepository.updatePokemonIds(id, pokemonIds);
+const updatePokemonIds = async (id, pokemonIds) => {
+  const response = await userRepository.updatePokemonIds(id, pokemonIds);
   return response;
 };
 

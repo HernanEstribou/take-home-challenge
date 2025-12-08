@@ -3,6 +3,7 @@ import Joi from 'joi';
 class UpdateUserDto {
   constructor(user = {}) {
     this.username = user.username;
+    this.password = user.password;
     this.email = user.email;
     this.pokemonIds = user.pokemonIds;
   }
@@ -19,6 +20,7 @@ class UpdateUserDto {
       {
         username: this.username,
         email: this.email,
+        password: this.password,
         pokemonIds: this.pokemonIds,
       },
       { abortEarly: false },

@@ -1,70 +1,125 @@
-const getAllUsers = () => {
-  // Simular una lista de usuarios (en una app real vendría de la DB)
-  const response = [
-    {
-      id: 1,
-      username: 'Hernan',
-      email: 'hernan@gmail.com',
-      password: '1234',
-      pokemonIds: [1, 4, 7],
+import { prisma } from '../../db.js';
+
+const getAllUsers = async () => {
+  const users = await prisma.user.findMany();
+  return users;
+};
+
+const getOneUser = async (id) => {
+  const user = await prisma.user.findFirst({
+    where: {
+      id: parseInt(id),
     },
-    {
-      id: 2,
-      username: 'Juan',
-      email: 'juan@gmail.com',
-      password: '5678',
-      pokemonIds: [25, 150],
+    include: {
+      pokemonIds: true,
     },
-  ];
+  });
 
-  return response;
+  return user;
 };
 
-const getOneUser = (id) => {
-  const response = id;
+const createNewUser = async (user) => {
+  const { pokemonIds, ...userData } = user;
 
-  if (id === '1234') {
-    console.log('Adentro del if id ===1234');
-    const response = {
-      id: 1234,
-      username: 'Hernan',
-      email: 'hernan@gmail.com',
-      password: 1234,
-      pokemonIds: [2, 5, 7],
-    };
-    return response;
-  }
+  const newUser = await prisma.user.create({
+    data: {
+      ...userData,
+      ...(pokemonIds &&
+        pokemonIds.length > 0 && {
+          pokemonIds: {
+            connect: pokemonIds.map((id) => ({ id })),
+          },
+        }),
+    },
+    include: {
+      pokemonIds: true,
+    },
+  });
 
-  return response;
+  return newUser;
 };
 
-const createNewUser = (user) => {
-  const response = user;
+const updateOneUser = async (userId, userData) => {
+  const { pokemonIds, ...restData } = userData;
+  const userIdInt = parseInt(userId);
 
-  return response;
+  // Usar una transacción para actualizar el usuario y reasignar pokémons
+  const modifiedUser = await prisma.$transaction(async (tx) => {
+    // Si hay pokemonIds, primero actualizar el ownerId de esos pokémons
+    if (pokemonIds && pokemonIds.length > 0) {
+      await tx.pokemon.updateMany({
+        where: {
+          id: { in: pokemonIds },
+        },
+        data: {
+          ownerId: userIdInt,
+        },
+      });
+    }
+
+    // Actualizar el usuario
+    return await tx.user.update({
+      where: {
+        id: userIdInt,
+      },
+      data: restData,
+      include: {
+        pokemonIds: true,
+      },
+    });
+  });
+
+  return modifiedUser;
 };
 
-const updateOneUser = (id, userData) => {
-  const response = `Usuario: ${id} actualizado correctamente con datos ${userData}`;
+const deleteOneUser = async (id) => {
+  const deleteUser = await prisma.$transaction(async (tx) => {
+    // Primero eliminar todos los pokémons del usuario
+    await tx.pokemon.deleteMany({
+      where: {
+        ownerId: parseInt(id),
+      },
+    });
 
-  return response;
+    // Luego eliminar el usuario
+    return await tx.user.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+  });
+
+  return deleteUser;
 };
 
-const deleteOneUser = (id) => {
-  const response = `Usuario: ${id} eliminado correctamente`;
+const updatePokemonIds = async (id, pokemonIds) => {
+  const userIdInt = parseInt(id);
 
-  return response;
-};
+  const updatedUser = await prisma.$transaction(async (tx) => {
+    // Actualizar el ownerId de los pokémons especificados
+    if (pokemonIds && pokemonIds.length > 0) {
+      await tx.pokemon.updateMany({
+        where: {
+          id: { in: pokemonIds },
+        },
+        data: {
+          ownerId: userIdInt,
+        },
+      });
+    }
 
-const updatePokemonIds = (id, pokemonIds) => {
-  const response = {
-    id: id,
-    username: 'Hernan',
-    email: 'hernan@gmail.com',
-    pokemonIds: pokemonIds,
-  };
+    // Retornar el usuario con sus pokémons actualizados
+    return await tx.user.findUnique({
+      where: {
+        id: userIdInt,
+      },
+      include: {
+        pokemonIds: true,
+      },
+    });
+  });
 
-  return response;
+  return updatedUser;
 };
 
 export {
