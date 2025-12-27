@@ -23,76 +23,128 @@ router.get('/', async (req, res) => {
 
 // Ruta: GET /users/:id
 router.get('/:id', async (req, res) => {
-  const response = await usersService.getOneUser(req.params.id);
+  try {
+    const response = await usersService.getOneUser(req.params.id);
 
-  const userDto = new UserWithPokemonDto(response);
-  res.send(userDto);
+    if (!response) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const userDto = new UserWithPokemonDto(response);
+    res.send(userDto);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error fetching user', error: error.message });
+  }
 });
 
 // Ruta: POST /users
-router.post('/', (req, res) => {
-  const createUserDto = new CreateUserDto(req.body);
+router.post('/', async (req, res) => {
+  try {
+    const createUserDto = new CreateUserDto(req.body);
 
-  const userData = {
-    ...createUserDto,
-    pokemonIds: createUserDto.pokemonIds || [],
-  };
+    const userData = {
+      ...createUserDto,
+      pokemonIds: createUserDto.pokemonIds || [],
+    };
 
-  const validation = createUserDto.validate();
+    const validation = createUserDto.validate();
 
-  if (!validation.valid) {
-    return res.status(400).json({
-      message: 'Validation failed',
-      errors: validation.errors,
-    });
+    if (!validation.valid) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validation.errors,
+      });
+    }
+
+    const response = await usersService.createNewUser(userData);
+
+    res.status(201).json(response);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error creating user', error: error.message });
   }
-
-  const response = usersService.createNewUser(userData);
-
-  res.status(201).json(response);
 });
 
 // Ruta: PUT /users/:id
-router.put('/:id', (req, res) => {
-  const updateUserDto = new UpdateUserDto(req.body);
+router.put('/:id', async (req, res) => {
+  try {
+    const updateUserDto = new UpdateUserDto(req.body);
 
-  const validation = updateUserDto.validate();
+    const validation = updateUserDto.validate();
 
-  if (!validation.valid) {
-    return res.status(400).json({
-      message: 'Validation failed',
-      errors: validation.errors,
-    });
+    if (!validation.valid) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validation.errors,
+      });
+    }
+    const response = await usersService.updateOneUser(
+      req.params.id,
+      updateUserDto,
+    );
+
+    if (!response) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.send(response);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error updating user', error: error.message });
   }
-  const response = usersService.updateOneUser(req.params.id, updateUserDto);
-  res.send(response);
 });
 
 // Ruta: DELETE /users/:id
-router.delete('/:id', (req, res) => {
-  const response = usersService.deleteOneUser(req.params.id);
-  res.send(response);
+router.delete('/:id', async (req, res) => {
+  try {
+    const response = await usersService.deleteOneUser(req.params.id);
+
+    if (!response) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.send(response);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error deleting user', error: error.message });
+  }
 });
 
 // Ruta: PUT /users/:id/pokemon
 router.put('/:id/pokemon', async (req, res) => {
-  const userId = req.params.id;
-  const updatePokemonDto = new UpdatePokemonIdsDto(req.body);
+  try {
+    const userId = req.params.id;
+    const updatePokemonDto = new UpdatePokemonIdsDto(req.body);
 
-  const validation = updatePokemonDto.validate();
+    const validation = updatePokemonDto.validate();
 
-  if (!validation.valid) {
-    return res.status(400).json({
-      message: 'Validation failed',
-      errors: validation.errors,
-    });
+    if (!validation.valid) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: validation.errors,
+      });
+    }
+
+    const updateUser = await usersService.updatePokemonIds(
+      userId,
+      updatePokemonDto.pokemonIds,
+    );
+
+    if (!updateUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(updateUser);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: 'Error updating pokemon IDs', error: error.message });
   }
-
-  const updateUser = await usersService.updatePokemonIds(
-    userId,
-    updatePokemonDto.pokemonIds,
-  );
-  res.json(updateUser);
 });
 
 export default router;

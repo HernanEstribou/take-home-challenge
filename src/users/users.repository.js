@@ -43,6 +43,15 @@ const updateOneUser = async (userId, userData) => {
   const { pokemonIds, ...restData } = userData;
   const userIdInt = parseInt(userId);
 
+  // Verificar si el usuario existe
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userIdInt },
+  });
+
+  if (!existingUser) {
+    return null;
+  }
+
   // Usar una transacción para actualizar el usuario y reasignar pokémons
   const modifiedUser = await prisma.$transaction(async (tx) => {
     // Si hay pokemonIds, primero actualizar el ownerId de esos pokémons
@@ -73,18 +82,29 @@ const updateOneUser = async (userId, userData) => {
 };
 
 const deleteOneUser = async (id) => {
+  const userIdInt = parseInt(id);
+
+  // Verificar si el usuario existe
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userIdInt },
+  });
+
+  if (!existingUser) {
+    return null;
+  }
+
   const deleteUser = await prisma.$transaction(async (tx) => {
     // Primero eliminar todos los pokémons del usuario
     await tx.pokemon.deleteMany({
       where: {
-        ownerId: parseInt(id),
+        ownerId: userIdInt,
       },
     });
 
     // Luego eliminar el usuario
     return await tx.user.delete({
       where: {
-        id: parseInt(id),
+        id: userIdInt,
       },
     });
   });
@@ -94,6 +114,15 @@ const deleteOneUser = async (id) => {
 
 const updatePokemonIds = async (id, pokemonIds) => {
   const userIdInt = parseInt(id);
+
+  // Verificar si el usuario existe
+  const existingUser = await prisma.user.findUnique({
+    where: { id: userIdInt },
+  });
+
+  if (!existingUser) {
+    return null;
+  }
 
   const updatedUser = await prisma.$transaction(async (tx) => {
     // Actualizar el ownerId de los pokémons especificados
