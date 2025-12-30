@@ -1,10 +1,10 @@
 class UserWithPokemonDto {
-  constructor(user, pokemon) {
+  constructor(user) {
     this.id = user.id;
     this.username = user.username;
     this.email = user.email;
     this.pokemonIds = user.pokemonIds;
-    this.pokemon = pokemon;
+    this.pokemons = user.pokemons;
   }
 }
 

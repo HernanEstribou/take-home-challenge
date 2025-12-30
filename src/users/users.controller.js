@@ -29,8 +29,8 @@ router.get('/:id', async (req, res) => {
     if (!response) {
       return res.status(404).json({ message: 'User not found' });
     }
-
     const userDto = new UserWithPokemonDto(response);
+
     res.send(userDto);
   } catch (error) {
     res
