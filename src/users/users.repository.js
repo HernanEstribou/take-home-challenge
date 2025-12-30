@@ -2,7 +2,10 @@ import { prisma } from '../../db.js';
 
 const getAllUsers = async () => {
   const users = await prisma.user.findMany();
-  return users;
+  return users.map((user) => ({
+    ...user,
+    pokemonIds: JSON.parse(user.pokemonIds),
+  }));
 };
 
 const getOneUser = async (id) => {
@@ -10,10 +13,14 @@ const getOneUser = async (id) => {
     where: {
       id: parseInt(id),
     },
-    include: {
-      pokemonIds: true,
-    },
   });
+
+  if (user) {
+    return {
+      ...user,
+      pokemonIds: JSON.parse(user.pokemonIds),
+    };
+  }
 
   return user;
 };
@@ -24,19 +31,14 @@ const createNewUser = async (user) => {
   const newUser = await prisma.user.create({
     data: {
       ...userData,
-      ...(pokemonIds &&
-        pokemonIds.length > 0 && {
-          pokemonIds: {
-            connect: pokemonIds.map((id) => ({ id })),
-          },
-        }),
-    },
-    include: {
-      pokemonIds: true,
+      pokemonIds: JSON.stringify(pokemonIds || []),
     },
   });
 
-  return newUser;
+  return {
+    ...newUser,
+    pokemonIds: JSON.parse(newUser.pokemonIds),
+  };
 };
 
 const updateOneUser = async (userId, userData) => {
@@ -52,33 +54,21 @@ const updateOneUser = async (userId, userData) => {
     return null;
   }
 
-  // Usar una transacción para actualizar el usuario y reasignar pokémons
-  const modifiedUser = await prisma.$transaction(async (tx) => {
-    // Si hay pokemonIds, primero actualizar el ownerId de esos pokémons
-    if (pokemonIds && pokemonIds.length > 0) {
-      await tx.pokemon.updateMany({
-        where: {
-          id: { in: pokemonIds },
-        },
-        data: {
-          ownerId: userIdInt,
-        },
-      });
-    }
-
-    // Actualizar el usuario
-    return await tx.user.update({
-      where: {
-        id: userIdInt,
-      },
-      data: restData,
-      include: {
-        pokemonIds: true,
-      },
-    });
+  // Actualizar el usuario
+  const modifiedUser = await prisma.user.update({
+    where: {
+      id: userIdInt,
+    },
+    data: {
+      ...restData,
+      ...(pokemonIds && { pokemonIds: JSON.stringify(pokemonIds) }),
+    },
   });
 
-  return modifiedUser;
+  return {
+    ...modifiedUser,
+    pokemonIds: JSON.parse(modifiedUser.pokemonIds),
+  };
 };
 
 const deleteOneUser = async (id) => {
@@ -93,20 +83,11 @@ const deleteOneUser = async (id) => {
     return null;
   }
 
-  const deleteUser = await prisma.$transaction(async (tx) => {
-    // Primero eliminar todos los pokémons del usuario
-    await tx.pokemon.deleteMany({
-      where: {
-        ownerId: userIdInt,
-      },
-    });
-
-    // Luego eliminar el usuario
-    return await tx.user.delete({
-      where: {
-        id: userIdInt,
-      },
-    });
+  // Eliminar el usuario
+  const deleteUser = await prisma.user.delete({
+    where: {
+      id: userIdInt,
+    },
   });
 
   return deleteUser;
@@ -124,31 +105,20 @@ const updatePokemonIds = async (id, pokemonIds) => {
     return null;
   }
 
-  const updatedUser = await prisma.$transaction(async (tx) => {
-    // Actualizar el ownerId de los pokémons especificados
-    if (pokemonIds && pokemonIds.length > 0) {
-      await tx.pokemon.updateMany({
-        where: {
-          id: { in: pokemonIds },
-        },
-        data: {
-          ownerId: userIdInt,
-        },
-      });
-    }
-
-    // Retornar el usuario con sus pokémons actualizados
-    return await tx.user.findUnique({
-      where: {
-        id: userIdInt,
-      },
-      include: {
-        pokemonIds: true,
-      },
-    });
+  // Actualizar los pokemonIds del usuario
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: userIdInt,
+    },
+    data: {
+      pokemonIds: JSON.stringify(pokemonIds || []),
+    },
   });
 
-  return updatedUser;
+  return {
+    ...updatedUser,
+    pokemonIds: JSON.parse(updatedUser.pokemonIds),
+  };
 };
 
 export {

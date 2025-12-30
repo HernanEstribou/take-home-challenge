@@ -16,18 +16,11 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  username String  @unique
-  email  String
-  password String
-  pokemonIds Pokemon[]  
-}
-
-model Pokemon{
-  id Int @id @default(autoincrement())
-  name String @unique
-  owner User @relation(fields: [ownerId], references: [id])
-  ownerId Int
+  id         Int    @id @default(autoincrement())
+  username   String @unique
+  email      String
+  password   String
+  pokemonIds String @default("[]")
 }
 
 
