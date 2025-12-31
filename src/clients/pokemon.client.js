@@ -7,7 +7,10 @@ class PokemonClient {
 
       // Crear un array de promesas, una por cada ID
       const promises = pokemonList.map(async (id) => {
-        const response = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+        const response = await fetch(
+          `${process.env.POKEAPI_URL}/pokemon/${id}`,
+        );
+
         const data = await response.json();
 
         return {
