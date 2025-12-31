@@ -1,5 +1,5 @@
 import { prisma } from '../../db.js';
-import { getPokemonById } from '../clients/pokemon.client.js';
+import pokemonClient from '../clients/pokemon.client.js';
 
 const getAllUsers = async () => {
   const users = await prisma.user.findMany();
@@ -20,7 +20,7 @@ const getOneUser = async (id) => {
     return {
       ...user,
       pokemonIds: JSON.parse(user.pokemonIds),
-      pokemons: await getPokemonById(JSON.parse(user.pokemonIds)),
+      pokemons: await pokemonClient.getPokemonById(JSON.parse(user.pokemonIds)),
     };
   }
 
