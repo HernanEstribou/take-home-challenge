@@ -66,7 +66,7 @@ components:
         username: Hernan
         email: hernan@gmail.com
 
-    UserWithPokemon:
+    UserWithPokemonIds:
       type: object
       properties:
         id:
@@ -85,10 +85,46 @@ components:
             type: integer
           description: List of Pokemon IDs owned by the user
       example:
+        id: 1
+        username: Hernan
+        email: hernan@gmail.com
+        pokemonIds: [1, 4, 7]
+
+    UserWithPokemon:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The auto-generated id of User
+        username:
+          type: string
+          description: The username of the user
+        email:
+          type: string
+          format: email
+          description: The email of the user
+        pokemonIds:
+          type: array
+          items:
+            type: integer
+          description: List of Pokemon IDs owned by the user
+        pokemons:
+          type: array
+          items:
+            type: object
+          description: Id and Pokemon name from Pokemon API
+      example:
         id: 1234
         username: Hernan
         email: hernan@gmail.com
-        pokemonIds: [2, 5, 7]
+        pokemonIds: [1, 5, 8, 7]
+        pokemons:
+          [
+            { id: 1, name: bulbasaur },
+            { id: 5, name: charmeleon },
+            { id: 8, name: wartortle },
+            { id: 7, name: 'squirtle' },
+          ]
 
     UpdateUser:
       type: object
@@ -171,7 +207,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserWithPokemonIds'
         '400':
           description: Validation error
           content:
@@ -226,7 +262,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/UserWithPokemonIds'
         '400':
           description: Validation error
           content:
@@ -255,12 +291,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                example:
-                  message: 'Usuario: 1234 eliminado correctamente'
+                $ref: '#/components/schemas/UserWithPokemonIds'
         '404':
           description: User not found
 
@@ -288,7 +319,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserWithPokemon'
+                $ref: '#/components/schemas/UserWithPokemonIds'
         '400':
           description: Validation error
           content:
