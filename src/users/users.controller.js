@@ -60,7 +60,9 @@ router.post('/', async (req, res) => {
 
     const response = await usersService.createNewUser(userData);
 
-    res.status(201).json(response);
+    const userDto = new UserResponseDto(response);
+
+    res.status(201).json(userDto);
   } catch (error) {
     res
       .status(500)

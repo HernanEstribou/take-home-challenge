@@ -3,3 +3,9 @@ node_modules
 README.Docker.md
 /src/generated/prisma
 .env
+.env.test
+test.db
+test.db-journal
+dev.db
+dev.db-journal
+coverage

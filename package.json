@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "nodemon ./src/app.js",
     "start": "node ./src/app.js",
-    "test": "set NODE_OPTIONS=--experimental-vm-modules && jest --detectOpenHandles"
+    "test": "set NODE_OPTIONS=--experimental-vm-modules && set DATABASE_URL=file:./test.db && jest --config jest.config.js --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",
