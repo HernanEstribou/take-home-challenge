@@ -206,3 +206,159 @@ describe('POST /users', () => {
     expect(response.body).toHaveProperty('username', 'simpleuser');
   });
 });
+
+describe('PUT /users/:id', () => {
+  let testUser;
+
+  beforeEach(async () => {
+    await cleanDatabase();
+    // Crear un usuario de prueba para actualizar
+    testUser = await createTestUser({
+      username: 'originaluser',
+      email: 'original@example.com',
+      password: 'originalPassword123',
+      pokemonIds: '[1, 25]',
+    });
+  });
+
+  test('Debería actualizar un usuario existente exitosamente', async () => {
+    const updateData = {
+      username: 'updatedName',
+      email: 'updated@example.com',
+    };
+
+    const response = await request(app)
+      .put(`/users/${testUser.id}`)
+      .send(updateData)
+      .expect(200);
+
+    expect(response.body).toHaveProperty('id', testUser.id);
+    expect(response.body).toHaveProperty('username', 'updatedName');
+    expect(response.body).toHaveProperty('email', 'updated@example.com');
+    expect(response.body).not.toHaveProperty('password');
+  });
+
+  test('Debería devolver 404 si el usuario no existe', async () => {
+    const updateData = {
+      username: 'updatedName',
+      email: 'updated@example.com',
+    };
+
+    const response = await request(app)
+      .put('/users/999')
+      .send(updateData)
+      .expect(404);
+
+    expect(response.body).toHaveProperty('message', 'User not found');
+  });
+
+  test('Debería fallar si los datos son inválidos', async () => {
+    const invalidData = {
+      username: '', // Username vacío es inválido
+    };
+
+    const response = await request(app)
+      .put(`/users/${testUser.id}`)
+      .send(invalidData)
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message', 'Validation failed');
+    expect(response.body).toHaveProperty('errors');
+  });
+});
+
+describe('PUT /users/:id/pokemon', () => {
+  let testUser;
+
+  beforeEach(async () => {
+    await cleanDatabase();
+    // Crear un usuario de prueba para actualizar
+    testUser = await createTestUser({
+      username: 'originaluser',
+      email: 'original@example.com',
+      password: 'originalPassword123',
+      pokemonIds: '[1, 25]',
+    });
+  });
+
+  test('Debería actualizar los ids de pokemons de un usuario correctamente', async () => {
+    const updateData = {
+      pokemonIds: [4, 7],
+    };
+
+    const response = await request(app)
+      .put(`/users/${testUser.id}/pokemon`)
+      .send(updateData)
+      .expect(200);
+
+    expect(response.body).toHaveProperty('id', testUser.id);
+    expect(response.body).toHaveProperty('username', 'originaluser');
+    expect(response.body).toHaveProperty('pokemonIds');
+    expect(Array.isArray(response.body.pokemonIds)).toBe(true);
+    expect(response.body.pokemonIds).toEqual([4, 7]);
+    expect(response.body).not.toHaveProperty('password');
+    expect(response.body).not.toHaveProperty('email');
+  });
+
+  test('Debería devolver 404 si el usuario no existe', async () => {
+    const updateData = {
+      pokemonIds: [4, 7],
+    };
+
+    const response = await request(app)
+      .put('/users/999/pokemon')
+      .send(updateData)
+      .expect(404);
+
+    expect(response.body).toHaveProperty('message', 'User not found');
+  });
+
+  test('Debería fallar si los pokemonIds son inválidos', async () => {
+    const invalidData = {
+      pokemonIds: 'not-an-array', // Debe ser array
+    };
+
+    const response = await request(app)
+      .put(`/users/${testUser.id}/pokemon`)
+      .send(invalidData)
+      .expect(400);
+
+    expect(response.body).toHaveProperty('message', 'Validation failed');
+    expect(response.body).toHaveProperty('errors');
+  });
+});
+
+describe('DELETE users/:id', () => {
+  let testUser;
+
+  beforeEach(async () => {
+    await cleanDatabase();
+    // Crear un usuario de prueba para actualizar
+    testUser = await createTestUser({
+      username: 'originaluser',
+      email: 'original@example.com',
+      password: 'originalPassword123',
+      pokemonIds: '[1, 25]',
+    });
+  });
+
+  test('Debería eliminar un usuario', async () => {
+    const response = await request(app)
+      .delete(`/users/${testUser.id}`)
+      .expect(200);
+
+    expect(response.body).toHaveProperty('id', testUser.id);
+    expect(response.body).toHaveProperty('username', 'originaluser');
+    expect(response.body).toHaveProperty('email', 'original@example.com');
+    expect(response.body).not.toHaveProperty('password');
+
+    // Verificar que el usuario ya no existe
+    await request(app).get(`/users/${testUser.id}`).expect(404);
+  });
+
+  test('Debería devolver 404 si el usuario no existe', async () => {
+    const response = await request(app).delete('/users/999').expect(404);
+
+    expect(response.body).toHaveProperty('message', 'User not found');
+  });
+});

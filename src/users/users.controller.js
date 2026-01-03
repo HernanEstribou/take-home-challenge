@@ -92,7 +92,9 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.send(response);
+    const userDto = new UserResponseDto(response);
+
+    res.send(userDto);
   } catch (error) {
     res
       .status(500)
@@ -109,7 +111,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.send(response);
+    const userDto = new UserResponseDto(response);
+
+    res.send(userDto);
   } catch (error) {
     res
       .status(500)
@@ -141,7 +145,9 @@ router.put('/:id/pokemon', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    res.json(updateUser);
+    const userDto = new UpdatePokemonIdsDto(updateUser);
+
+    res.json(userDto);
   } catch (error) {
     res
       .status(500)
