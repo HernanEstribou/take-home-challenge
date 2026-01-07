@@ -32,6 +32,10 @@ describe('GET /users', () => {
     });
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('Debería responder con un código de estado 200', async () => {
     const response = await request(app).get('/users').expect(200);
 
@@ -124,6 +128,10 @@ describe('GET /users/:id', () => {
 describe('POST /users', () => {
   beforeEach(async () => {
     await cleanDatabase();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test('Debería crear un nuevo usuario exitosamente', async () => {
@@ -221,6 +229,10 @@ describe('PUT /users/:id', () => {
     });
   });
 
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   test('Debería actualizar un usuario existente exitosamente', async () => {
     const updateData = {
       username: 'updatedName',
@@ -279,6 +291,10 @@ describe('PUT /users/:id/pokemon', () => {
       password: 'originalPassword123',
       pokemonIds: '[1, 25]',
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test('Debería actualizar los ids de pokemons de un usuario correctamente', async () => {
@@ -340,6 +356,10 @@ describe('DELETE users/:id', () => {
       password: 'originalPassword123',
       pokemonIds: '[1, 25]',
     });
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   test('Debería eliminar un usuario', async () => {
