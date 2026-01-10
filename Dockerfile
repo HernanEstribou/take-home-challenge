@@ -14,8 +14,15 @@ FROM node:${NODE_VERSION}-alpine
 ENV NODE_ENV production
 
 WORKDIR /app
+
+# Crear directorios para las bases de datos
+RUN mkdir -p /data/production /data/testing
+
 COPY package*.json ./
-RUN npm install
+RUN npm install --include=dev
 COPY . .
+
 EXPOSE 5173
-CMD npm run start
+
+# Script de inicio: generar cliente de Prisma e iniciar la app
+CMD npx prisma generate && npm run start
