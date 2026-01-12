@@ -9,6 +9,9 @@ jobs:
       - node/install-packages:
           pkg-manager: npm
       - run:
+          command: npx prisma generate
+          name: Prisma generate
+      - run:
           command: npm run test
           name: Run tests
       - run:
