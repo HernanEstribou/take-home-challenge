@@ -2,6 +2,8 @@
 
 A RESTful API built with Express.js and Prisma for managing users and their Pokemon collections. This application integrates with the [PokeAPI](https://pokeapi.co/) to fetch Pokemon details.
 
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/HernanEstribou/take-home-challenge/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/HernanEstribou/take-home-challenge/tree/main)
+
 ## 📋 Table of Contents
 
 - [Features](#features)
