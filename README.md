@@ -4,6 +4,8 @@ A RESTful API built with Express.js and Prisma for managing users and their Poke
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/HernanEstribou/take-home-challenge/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/HernanEstribou/take-home-challenge/tree/main)
 
+[![Coverage Status](https://coveralls.io/repos/github/HernanEstribou/take-home-challenge/badge.svg?branch=main)](https://coveralls.io/github/HernanEstribou/take-home-challenge?branch=main)
+
 ## 📋 Table of Contents
 
 - [Features](#features)
